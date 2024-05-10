@@ -1,0 +1,1036 @@
+import geopandas as gpd
+import matplotlib.pyplot as plt
+from shapely.geometry import Point,Polygon,LineString,shape
+import numpy as np
+import pandas as pd
+import seaborn as sbn
+import mapclassify
+import fiona
+
+Berlin_landcover= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\Landuse\gis_osm_landuse_a_free_1.shp')
+# Plot the buildings
+Berlin_landcover .plot()
+# Show the plot
+plt.show()
+
+Berlin_waterarea= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\waterways\WATERAREA.shp')
+# Plot the buildings
+Berlin_waterarea.plot()
+# Show the plot
+plt.show()
+
+Berlin_waterways= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\waterways\waterways.shp')
+# Plot the buildings
+Berlin_waterways.plot()
+# Show the plot
+plt.show()
+
+
+Berlin_Building = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_building\gis_osm_buildings_a_free_1.shp')
+# Plot the buildings
+Berlin_Building .plot()
+# Show the plot
+plt.show()
+
+# Filter the GeoDataFrame based on conditions from multiple columns
+filtered_gdf = Berlin[(Berlin['maxspeed'] > 50) & (Berlin['fclass'])]
+filtered_gdf.plot()
+plt.show() 
+
+# Filter the GeoDataFrame based on conditions from multiple columns using "or" operation
+filtered_gdf_2,ax = Berlin[((Berlin['maxspeed'] > 30) | (Berlin['maxspeed'] < 50)) & (Berlin['fclass'] == 'residential')]
+filtered_gdf_2.plot()
+plt.show() 
+
+filtered_gdf_axix = Berlin[(Berlin['maxspeed'] > 30) & (Berlin['fclass'] == 'residential')]
+filtered_gdf_axix.plot()
+plt.show()
+
+Berlin_Building.simplify(tolerance=10)
+Berlin_Building.plot()
+
+# Show the plot
+plt.show()
+
+Berlin_water_body = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\WATER_BODIES\gis_osm_water_a_free_1.shp')
+# Plot the buildings
+Berlin_water_body .plot()
+
+# Show the plot
+plt.show()
+
+centroids_2 = Berlin_landcover.centroid
+
+# Plot the centroids
+ax = centroids_2.plot(marker='o', color='red', markersize=5)
+
+# Add the landcover geometries for reference
+Berlin_landcover.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+
+# Set plot title and labels
+ax.set_title('Centroids of Berlin Landcover')
+ax.set_xlabel('Longitude')
+ax.set_ylabel('Latitude')
+
+# Save the centroids to a shapefile
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_landcover_centroids.shp'
+centroids_2.to_file(output_path)
+# Show plot
+plt.show()
+
+shapefile_path = r'C:\Users\Thahir Nasser\Downloads\osm\Landuse\gis_osm_landuse_a_free_1.shp'
+
+# Open the shapefile
+with fiona.open(shapefile_path) as src:
+    for feature in src:
+        # Extract the geometry
+        geom_landcover = shape(feature['geometry'])
+
+        # Print the geometry
+        print(geom_landcover)
+        
+
+centroids_2 = Berlin_landcover.centroid
+
+# Plot the centroids
+ax = centroids_2.plot(marker='o', color='red', markersize=5)
+
+# Add the landcover geometries for reference
+Berlin_landcover.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+
+# Set plot title and labels
+ax.set_title('Centroids of Berlin Landcover')
+ax.set_xlabel('Longitude')
+ax.set_ylabel('Latitude')
+
+# Show plot
+plt.show()
+
+shapefile_path = r'C:\Users\Thahir Nasser\Downloads\osm\WATER_BODIES\gis_osm_water_a_free_1.shp'
+
+# Open the shapefile
+with fiona.open(shapefile_path) as src:
+    for feature in src:
+        # Extract the geometry
+        geom_water = shape(feature['geometry'])
+
+        # Print the geometry
+        print(geom_water )
+
+
+gpd.GeoSeries([geom_landcover,geom_water]).plot(cmap='tab10')
+
+# Find the centroid
+centroid = geom_water.centroid
+
+# Find the length (if the geometry is a LineString or a Polygon)
+length =  geom_water.length
+
+# Print centroid and length
+print("Centroid:", centroid)
+print("Length:", length)
+
+
+geom_landcover.distance(geom_water)
+
+geom_landcover.area
+
+# Calculate the intersection of geom_landcover and geom_water
+intersection = geom_landcover.intersection(geom_water)
+
+# Plot the intersection
+x, y = intersection.exterior.xy
+plt.plot(x, y)
+
+# Show the plot
+plt.show()
+
+geom_landcover.buffer(2.5)
+
+
+geom_landcover.within(geom_water)
+
+geom_landcover.contains(geom_water)
+
+geom_landcover.intersects(geom_water)
+
+
+geom_landcover.difference(geom_water)
+
+x, y = difference.exterior.xy
+plt.plot(x, y)
+
+# Show the plot
+plt.show()
+
+
+# Compute the difference between geom_landcover and geom_water
+difference = geom_landcover.difference(geom_water)
+
+# Plot the difference geometry
+x, y = difference.exterior.xy
+plt.plot(x, y)
+
+# Show the plot
+plt.show()
+
+
+# Convert GeoSeries to GeoDataFrames
+building_gdf = gpd.GeoDataFrame(geometry=Building_residential)
+landcover_gdf = gpd.GeoDataFrame(geometry=landcover_residential)
+
+# Perform spatial join
+spatial_join = gpd.sjoin(building_gdf, landcover_gdf, op='within')
+
+# Plot the result
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Building within Landcover', 'Landcover', 'Building'])
+
+# Show plot
+plt.show()
+
+residential_Building_=Berlin_Building.loc[Berlin_Building['type']=='residential'].geometry.squeeze()
+residential_Building_.plot()
+plt.show()
+
+#union_1=gpd.overlay(Berlin_Building,Berlin_Road,how='union')
+#union_1['common_column']=1
+#Disolved_1=union_1.dissolve(by='common_column')
+
+
+Berlin_Building[Berlin_Building.contains(residential_Building_)]
+
+
+
+Contains_Berlin=Berlin_Building[Berlin_Building.contains(residential_Building_)]
+Contains_Berlin.plot()
+plt.show()
+
+# Perform contains operation
+contains_result = building_gdf.contains(landcover_gdf)
+building_gdf.crosses(landcover_gdf)
+# Display result
+print(contains_result)
+
+
+Berlin_Building[Berlin_Building.contains(residential_Building_)]
+
+Berlin_Building.contains(residential_Building_)
+
+
+
+# Perform overlay operation
+#union_1 = gpd.overlay(Berlin_Building, Berlin_Road, how='union')
+
+# Add a common column
+#union_1['common_column'] = 1
+
+# Dissolve the GeoDataFrame
+#dissolved_1 = union_1.dissolve(by='common_column')
+
+# Plot the dissolved geometry
+#dissolved_1.plot()
+
+# Save the dissolved geometry to a shapefile
+#output_path = r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_Building_road_union.shp'
+#dissolved_1.to_file(output_path)
+
+# Show the plot
+#plt.show()
+
+
+# Perform overlay operation
+#union_2 = gpd.overlay(Berlin_water_body, Berlin_Road, how='union')
+
+# Add a common column
+#union_2['common_column'] = 1
+
+# Dissolve the GeoDataFrame
+#dissolved_2 = union_2.dissolve(by='common_column')
+
+# Plot the dissolved geometry
+#dissolved_2.plot()
+
+# Save the dissolved geometry to a shapefile
+#output_path = r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_Building_road_union_water_bodies.shp'
+#dissolved_2.to_file(output_path)
+
+# Show the plot
+#plt.show()
+
+Berlin_Building_apartments = Berlin_Building.loc[ Berlin_Building['type'] == 'apartments', 'geometry'].squeeze()
+Berlin_landcover_residential=Berlin_landcover.loc[Berlin_landcover['fclass'] == 'residential', 'geometry'].squeeze()
+
+
+# Plot Berlin_Building_apartments
+Berlin_Building_apartments.plot(figsize=(10, 10), cmap='tab10')
+
+# Plot Berlin_landcover_residential
+Berlin_landcover_residential.plot(figsize=(10, 10), cmap='tab10')
+
+
+# Convert GeoSeries to GeoDataFrames
+building_gdf = gpd.GeoDataFrame(geometry=Berlin_Building_apartments)
+landcover_gdf = gpd.GeoDataFrame(geometry=Berlin_landcover_residential)
+
+# Perform spatial join
+spatial_join = gpd.sjoin(building_gdf, landcover_gdf, op='within')
+
+# Plot the result
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+
+# Show plot
+plt.show()
+
+# Perform spatial join
+spatial_join = gpd.sjoin(building_gdf, landcover_gdf, op='contains_properly')
+
+# Plot the result
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+
+# Show plot
+plt.show()
+# Show plot
+plt.show()
+
+spatial_join_2 = gpd.sjoin(Berlin_Building , landcover_gdf, op='contains')
+
+# Plot the result
+ax = spatial_join_2.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_within.shp'
+spatial_join_2 .to_file(output_path)
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Show plot
+plt.show()
+
+Berlin_landcover.buffer(1).difference(Berlin_landcover_residential)
+
+
+# Reproject GeoDataFrames to a projected CRS
+Berlin_landcover_projected = Berlin_landcover.to_crs('EPSG:3857')  # Replace XXXX with the appropriate EPSG code
+Berlin_landcover_residential_projected = Berlin_landcover_residential.to_crs('EPSG:3857')
+
+# Reset indices to ensure alignment
+Berlin_landcover_projected = Berlin_landcover_projected.reset_index(drop=True)
+Berlin_landcover_residential_projected = Berlin_landcover_residential_projected.reset_index(drop=True)
+
+# Perform buffer and difference operations
+result = Berlin_landcover_projected.buffer(1).difference(Berlin_landcover_residential_projected)
+
+# Plot the result
+ax = result.plot(figsize=(10, 10), edgecolor='k')
+
+# Add the original geometries for reference
+Berlin_landcover_projected.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+Berlin_landcover_residential_projected.plot(ax=ax, facecolor='none', edgecolor='blue', linewidth=0.5)
+
+# Set plot title and labels
+ax.set_title('Buffer and Difference of Berlin Landcover')
+ax.set_xlabel('Longitude')
+ax.set_ylabel('Latitude')
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\result_buffer.shp'
+result.to_file(output_path)
+# Show plot
+plt.show()
+
+# Perform the spatial join
+within_join = gpd.sjoin(Berlin_Building, Berlin_landcover, how='inner', predicate='contains')
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+# Plot Berlin buildings
+building_plot = Berlin_Building.plot(ax=ax, color='blue', alpha=0.5)
+# Plot Berlin landcover
+landcover_plot = Berlin_landcover.plot(ax=ax, color='green', alpha=0.5)
+
+# Create legend handles and labels
+building_legend = mpatches.Patch(color='blue', alpha=0.5, label='Building ftype')
+landcover_legend = mpatches.Patch(color='green', alpha=0.5, label='Landcover fclass')
+
+# Add legend
+ax.legend(handles=[building_legend, landcover_legend])
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\f_type.shp'
+within_join .to_file(output_path)
+plt.show()
+
+Landcover_allotments=Berlin_landcover.loc[Berlin_landcover['fclass']=='allotments'].geometry.squeeze()
+Landcover_allotments.plot()
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\allotment_landcover.shp'
+Landcover_allotments.to_file(output_path)
+plt.show()
+
+Building_house =Berlin_Building.loc[Berlin_Building['type']=='house'].geometry.squeeze()
+Building_house.plot()
+plt.show()
+
+allotments_within_buildings = Landcover_allotments[Landcover_allotments.within(Building_apartments.unary_union)]
+
+# Plot the result
+allotments_within_buildings.plot()
+allotments_within_buildings.plot()
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\house _building_allotment.shp'
+allotments_within_buildings.to_file(output_path)
+plt.show()
+
+
+allotments_within_house = Landcover_allotments[Landcover_allotments.within(Building_house.unary_union)]
+
+# Plot the result
+allotments_within_house.plot()
+allotments_within_house.plot()
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\house _building_allotment.shp'
+allotments_within_house.to_file(output_path)
+plt.show()
+
+
+Berlin_landcover_allotments= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\allotment_landcover.shp')
+# Plot the buildings
+Berlin_landcover_allotments.plot()
+
+# Show the plot
+plt.show()
+
+
+Berlin_Building_house_ = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\house _building_new.shp')
+# Plot the buildings
+Berlin_Building_house.plot()
+
+# Show the plot
+plt.show()
+
+
+Building_house_gdf = gpd.GeoDataFrame(geometry=Building_house)
+
+Landcover_allotments_gdf = gpd.GeoDataFrame(geometry=Landcover_allotments)
+
+spatial_join_2 = gpd.sjoin(building_gdf, landcover_gdf, op='contains')
+
+# Plot the result
+ax = spatial_join_2.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+
+# Show plot
+plt.show()
+
+# Perform the spatial join
+within_join = gpd.sjoin(Landcover_allotments, Building_house, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+
+# Show plot
+plt.show()
+# Show plot
+plt.show()
+
+
+# Convert GeoSeries to GeoDataFrame
+Building_house_gdf = gpd.GeoDataFrame(geometry=Building_house)
+
+
+Berlin_within= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\OSM_shapefile\within[landcover_building].shp')
+Berlin_within.plot()
+# Show the plot
+plt.show()
+
+
+Berlin_within= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\OSM_shapefile\Within(Building_Landuse)\Within_house.shp')
+Berlin_within.plot()
+# Show the plot
+plt.show()
+
+
+
+Landcover_allotments_within= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\allotment_landcover.shp')
+Landcover_allotments_within.plot()
+# Show the plot
+plt.show()
+
+
+Landcover_allotments=Berlin_landcover.loc[Berlin_landcover['fclass']=='allotments'].geometry.squeeze()
+Landcover_allotments.plot()
+plt.show()
+
+
+Landcover_grass=Berlin_landcover.loc[Berlin_landcover['fclass']=='grass'].geometry.squeeze()
+Landcover_grass.plot()
+plt.show()
+
+
+# Concatenate the two GeoDataFrames
+combined_gdf = gpd.GeoDataFrame(pd.concat([Berlin_within, Landcover_allotments_within], ignore_index=True))
+
+# Plot the combined GeoDataFrame
+fig, ax = plt.subplots(figsize=(10, 7))
+combined_gdf.plot(ax=ax, column='layer', legend=True, cmap='RdYlGn', alpha=0.7)
+
+# Set plot title
+plt.title('Berlin Within Buildings and Landcover within Allotments')
+
+
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\combinedt.shp'
+combined_gdf .to_file(output_path)
+# Show the plot
+plt.show()
+
+Berlin_Building_apartments = Berlin_Building.loc[ Berlin_Building['type'] == 'apartments', 'geometry'].squeeze()
+Berlin_Building_apartments.plot()
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\building_apartments.shp'
+Berlin_Building_apartments.to_file(output_path)
+plt.show()
+
+# Create subplots
+fig, axes = plt.subplots(1, 2, figsize=(15, 7))  # Adjust figsize as needed
+
+# Plot Berlin_within on the first subplot
+Berlin_Building_apartments_df.plot(ax=axes[0], color='red', alpha=0.7)
+axes[0].set_title('Berlin Within Buildings')
+
+# Plot Landcover_allotments_within on the second subplot
+Landcover_allotments_df .plot(ax=axes[1], color='green', alpha=0.7)
+axes[1].set_title('Landcover within Berlin Buildings')
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+
+
+a=Landcover_allotments.within(Berlin_Building_apartments_df)
+
+# Create subplots
+fig, axes = plt.subplots(1, 2, figsize=(15, 7))  # Adjust figsize as needed
+
+# Plot Berlin_within on the first subplot
+Berlin_within.plot(ax=axes[0], color='red', alpha=0.7)
+axes[0].set_title('Berlin Within Buildings')
+
+# Plot Landcover_allotments_within on the second subplot
+Landcover_allotments_within.plot(ax=axes[1], color='green', alpha=0.7)
+axes[1].set_title('Landcover within Allotments')
+# Show the plot
+plt.tight_layout()
+plt.show()
+
+
+# Add a new column 'layer' to differentiate between the two layers
+Berlin_within['layer'] = 'Berlin Within appartment'
+Landcover_allotments_within['layer'] = 'Landcover within Allotments'
+
+# Concatenate the two GeoDataFrames
+combined_gdf = gpd.GeoDataFrame(pd.concat([Landcover_allotments_df , Berlin_Building_apartments_df], ignore_index=True))
+
+# Plot the combined GeoDataFrame
+fig, ax = plt.subplots(figsize=(10, 7))
+combined_gdf.plot(ax=ax, column='layer', legend=True, cmap='RdYlGn', alpha=0.7)
+
+# Set plot title
+plt.title('Berlin Within Buildings and Landcover within Allotments')
+# Show the plot
+plt.show()
+
+# Create subplots
+fig, axes = plt.subplots(1, 2, figsize=(15, 7))  # Adjust figsize as needed
+
+# Plot Berlin_within on the first subplot
+Berlin_Building_apartments_df.plot(ax=axes[0], color='red', alpha=0.7)
+axes[0].set_title('Berlin Within Buildings')
+
+# Plot Landcover_allotments_within on the second subplot
+Landcover_allotments_df .plot(ax=axes[1], color='green', alpha=0.7)
+axes[1].set_title('Landcover within Berlin Buildings')
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+
+
+# Add a new column 'layer' to differentiate between the two layers
+Landcover_allotments_df_1['layer'] = 'Landcover within Allotments'
+Landcover_allotments_df_1['layer'] = 'Berlin Within Buildings'
+
+# Concatenate the two GeoDataFrames
+combined_gdf = gpd.GeoDataFrame(pd.concat([Landcover_allotments_df_1, Berlin_Building_apartments_df], ignore_index=True))
+
+# Plot the combined GeoDataFrame
+fig, ax = plt.subplots(figsize=(10, 7))
+combined_gdf.plot(ax=ax, column='layer', legend=True, cmap='RdYlGn', alpha=0.7)
+
+# Set plot title
+plt.title('Berlin Within Buildings and Landcover within Allotments')
+# Show the plot
+plt.show()
+
+
+
+# Perform the spatial join
+spatial_join = gpd.sjoin(Landcover_allotments_df_1,Berlin_Building_apartments_df, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+Landcover_allotments_df_1.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+Berlin_Building_apartments_df.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+# Show plot
+plt.show()
+
+
+
+
+
+Berlin_Building_apartments = Berlin_Building.loc[ Berlin_Building['type'] == 'apartments', 'geometry'].squeeze()
+Berlin_Building_apartments.plot()
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\building_apartments.shp'
+Berlin_Building_apartments.to_file(output_path)
+plt.show()
+
+Berlin_landcover_residential=Berlin_landcover.loc[Berlin_landcover['fclass'] == 'residential', 'geometry'].squeeze()
+fig, ax = plt.subplots(figsize=(10, 10))
+Berlin_landcover_residential.plot(ax=ax, color='blue', alpha=0.5)
+# Adding title
+plt.title('Berlin_landcover_residential')
+# Show the plot
+plt.show()
+
+Berlin_Building['type'].value_counts()
+Berlin_landcover['fclass'].value_counts()
+
+Berlin_landcover_residential=Berlin_landcover.loc[Berlin_landcover['fclass'] == 'residential', 'geometry'].squeeze()
+fig, ax = plt.subplots(figsize=(10, 10))
+Berlin_landcover_residential.plot(ax=ax, color='blue', alpha=0.5)
+# Adding title
+plt.title('Berlin_landcover_residential')
+# Show the plot
+plt.show()
+
+# Plot Berlin_Building_apartments
+Berlin_Building_apartments.plot(figsize=(10, 10), cmap='tab10')
+
+# Plot Berlin_landcover_residential
+Berlin_landcover_residential.plot(figsize=(10, 10), cmap='tab10')
+
+
+
+# Convert GeoSeries to GeoDataFrames
+building_gdf = gpd.GeoDataFrame(geometry=Berlin_Building_apartments)
+landcover_gdf = gpd.GeoDataFrame(geometry=Berlin_landcover_residential)
+
+
+# Perform the spatial join
+spatial_join = gpd.sjoin(landcover_gdf, building_gdf, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+# Show plot
+plt.show()
+
+
+# Perform the spatial join
+spatial_join = gpd.sjoin(building_gdf ,landcover_gdf, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+# Show plot
+plt.show()
+
+
+Building_apartment= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\apartments(building).shp')
+# Plot the buildings
+Building_apartment.plot()
+# Show the plot
+plt.show()
+
+
+
+
+Landuse_residential = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\residential (landuse).shp')
+# Plot the buildings
+Landuse_residential .plot()
+# Show the plot
+plt.show()
+
+
+Landuse_residential = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\OSM_shapefile\landuse_residential.shp')
+# Plot the buildings
+Landuse_residential .plot()
+# Show the plot
+plt.show()
+
+# Perform the spatial join
+spatial_join = gpd.sjoin(Building_apartment,Landuse_residential, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+Building_apartment.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+Landuse_residential.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+
+# Show plot
+plt.show()
+
+# Convert GeoSeries to GeoDataFrames
+building_gdf = gpd.GeoDataFrame(geometry=Berlin_Building_apartments)
+building_gdf .plot
+plt.show()
+
+landcover_gdf = gpd.GeoDataFrame(geometry=Berlin_landcover_residential)
+landcover_gdf.plot
+plt.show()
+
+# Perform the spatial join
+spatial_join = gpd.sjoin(landcover_gdf, building_gdf, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+landcover_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+building_gdf.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+
+# Add legend
+ax.legend(['Berlin_Building_apartments', 'Berlin_landcover_residential'])
+# Set aspect ratio
+ax.set_aspect('equal')
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\building_apartments_residence.shp'
+
+spatial_join .to_file(output_path)
+# Show plot
+plt.show()
+
+# Perform overlay operation to find the intersection between buildings and roads
+Intersect_Buildings = gpd.overlay(landcover_gdf,building_gdf, how='overlapes')
+
+# Filter buildings that touch roads
+buildings_touching_roads = Intersect_Buildings  # No need for filtering, as it's already the result of the intersection
+
+# Plot the resulting buildings that touch roads
+fig, ax = plt.subplots(figsize=(10, 10))  # Create a figure and axis
+buildings_touching_roads.plot(ax=ax, color='red', alpha=0.7)  # Plot the buildings
+Berlin_Road.plot(ax=ax, color='purple', alpha=0.5)  # Plot the roads
+
+# Set plot title
+plt.title('apartment_residence')
+
+# Hide the x-axis and y-axis
+ax.set_axis_off()
+
+# Show the plot
+plt.show()
+
+a=landcover_gdf.overlaps(building_gdf)
+a.plot()
+plt.show()
+
+waterways_drain=Berlin_waterways.loc[Berlin_waterways['fclass']=='drain','geometry'].squeeze()
+waterways_drain.plot()
+plt.show()
+
+Berlin_landcover_residential=Berlin_landcover.loc[Berlin_landcover['fclass'] == 'residential', 'geometry'].squeeze()
+fig, ax = plt.subplots(figsize=(10, 10))
+Berlin_landcover_residential.plot(ax=ax, color='blue', alpha=0.5)
+
+# Adding title
+plt.title('Berlin_landcover_residential')
+
+# Show the plot
+plt.show()
+
+
+waterways_stream=Berlin_waterways.loc[Berlin_waterways['fclass']=='stream','geometry'].squeeze()
+waterways_stream.plot()
+plt.show()
+
+# Perform the spatial join
+spatial_join_stream = gpd.sjoin(waterways_stream,Berlin_landcover_residential, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join_stream.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+waterways_stream.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+Berlin_landcover_residential.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+# Show plot
+plt.show()
+
+
+# Convert Berlin_landcover_residential to GeoDataFrame
+Berlin_landcover_residential_gdf = gpd.GeoDataFrame(geometry=Berlin_landcover_residential)
+waterways_stream_gdf = gpd.GeoDataFrame(geometry=waterways_stream)
+# Perform the spatial join
+spatial_join_stream = gpd.sjoin(Berlin_waterarea, Berlin_landcover, how='inner', predicate='within')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join_stream.plot(figsize=(10, 10), cmap='tab10', edgecolor='k')
+waterways_stream_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+Berlin_landcover.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+# Plot the result with a fixed aspect ratio
+fig, ax = plt.subplots(figsize=(10, 10))
+ax = spatial_join_stream.plot(ax=ax, cmap='tab10', edgecolor='k')
+waterways_stream_gdf.plot(ax=ax, facecolor='none', edgecolor='green', linewidth=0.5)
+Berlin_landcover.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=1)
+ax.set_aspect('equal')
+
+# Show plot
+plt.show()
+# Show plot
+plt.show()
+
+
+waterways_stream_gdf = gpd.GeoDataFrame(geometry=waterways_drain)
+
+spatial_join_stream = gpd.sjoin(Berlin_waterarea, Berlin_landcover, how='inner', predicate='within')
+
+spatial_join_waterways.plot()
+plt.show()
+
+
+spatial_join_stream = gpd.sjoin(Berlin_waterarea, Berlin_landcover, how='inner', predicate='within')
+
+# Plot the result with a fixed aspect ratio
+spatial_join_stream.plot(aspect='equal')
+plt.show()
+
+
+
+spatial_join_waterways = gpd.sjoin(Berlin_waterways, Berlin_landcover, how='right', predicate='within')
+
+spatial_join_waterways.plot(aspect='equal')
+plt.show()
+
+
+
+
+
+waterways_witin_landcover= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\waterways\within\waterwayswithin.shp')
+# Plot the buildings
+waterways_witin_landcover.plot()
+
+# Show the plot
+plt.show()
+
+
+landcover_difference = Berlin_landcover.overlay(spatial_joined_gdf, how='difference')
+ax = landcover_difference.plot(alpha=0.5, edgecolor='black', column='fclass')
+
+building_difference = Berlin_landcover.overlay(Berlin_Building, how='difference')
+ax = building_difference .plot(alpha=0.5, edgecolor='black', column='type')
+
+
+
+
+Berlin_building_house=Berlin_Building.loc[Berlin_Building ['type'] == 'house', 'geometry'].squeeze()
+fig, ax = plt.subplots(figsize=(10, 10))
+Berlin_building_house.plot(ax=ax, color='blue', alpha=0.5)
+
+# Adding title
+plt.title('Berlin_building_house')
+
+# Show the plot
+plt.show()
+
+
+
+Berlin_landcover_residential_gdf = gpd.GeoDataFrame(Berlin_landcover_residential)
+
+
+# Perform the spatial join
+spatial_joined_gdf = gpd.sjoin(Berlin_landcover, Berlin_Building, op='intersects')
+
+
+
+landcover_difference = Berlin_landcover.overlay(spatial_joined_gdf, how='difference')
+ax = landcover_difference.plot(alpha=0.5, edgecolor='black', column='fclass')
+
+# Adding title
+plt.title('Berlin_building_house')
+
+# Show the plot
+plt.show()
+
+building_difference = Berlin_landcover.overlay(Berlin_Building, how='difference')
+ax = building_difference .plot(alpha=0.5, edgecolor='black', column='type')
+
+
+
+# Count occurrences of values in the 'fclass' column
+count_landcover_difference = landcover_difference['fclass'].value_counts()
+print(count_landcover_difference)
+
+
+# Count occurrences of values in the 'fclass' column
+count_landcover_difference = landcover_difference['fclass'].value_counts()
+print(count_landcover_difference)
+
+
+# Perform the spatial join
+within_join = gpd.sjoin(Berlin_Building, Berlin_landcover, how='inner', predicate='contains')
+
+# Plot the result
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# Plot Berlin buildings
+building_plot = Berlin_Building.plot(ax=ax, color='blue', alpha=0.5)
+
+# Plot Berlin landcover
+landcover_plot = Berlin_landcover.plot(ax=ax, color='green', alpha=0.5)
+
+# Create legend handles and labels
+building_legend = mpatches.Patch(color='blue', alpha=0.5, label='Building ftype')
+landcover_legend = mpatches.Patch(color='green', alpha=0.5, label='Landcover fclass')
+
+# Add legend
+ax.legend(handles=[building_legend, landcover_legend])
+output_path = r'C:\Users\Thahir Nasser\Downloads\osm\f_type.shp'
+within_join .to_file(output_path)
+plt.show()
+
+
+
+# Get the value counts of 'fclass' column
+value_counts = Berlin_landcover['fclass'].value_counts()
+
+# Sort the value counts in ascending order by index (fclass)
+sorted_value_counts = value_counts.sort_index()
+
+# Alternatively, you can sort by values (counts) in ascending order
+# sorted_value_counts = value_counts.sort_values()
+
+# Display the sorted value counts
+print(sorted_value_counts)
+
+
+# Filter Berlin_landcover for 'fclass' == 'allotment'
+allotments_landcover = Berlin_landcover[Berlin_landcover['fclass'] == 'allotments']
+
+# Filter Berlin_Building for 'type' == 'apartment'
+apartments_building = Berlin_Building[Berlin_Building['type'] == 'apartments']
+
+# Filter Berlin_roads for 'maxspeed' == 30
+maxspeed_roads = Berlin_roads[Berlin_roads['maxspeed'] == 30]
+
+# Plot the filtered GeoDataFrames
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# Plot Berlin landcover
+allotments_landcover.plot(ax=ax, color='green', alpha=0.5, label='Allotment')
+
+# Plot Berlin buildings
+apartments_building.plot(ax=ax, color='blue', alpha=0.5, label='Apartment')
+
+# Plot Berlin roads
+maxspeed_roads.plot(ax=ax, color='red', alpha=0.5, label='Road (maxspeed=30)')
+
+# Add legend
+ax.legend()
+
+plt.show()
+
+maxspeed_roads.value_counts('fclass')
+# Filter maxspeed_roads for 'fclass' == 'residential'
+maxspeed_residential = maxspeed_roads[maxspeed_roads['fclass'] == 'residential']
+
+# Plot the filtered GeoDataFrame
+fig, ax = plt.subplots(figsize=(10, 10))
+maxspeed_residential.plot(ax=ax, color='red', alpha=0.5, label='Residential Roads')
+plt.legend()
+plt.show()
+
+# Perform overlay operation to find the intersection between buildings and roads
+Intersect_Buildings = gpd.overlay(landcover_gdf, building_gdf, how='union', keep_geom_type=False)
+
+# Plot the resulting buildings that touch roads
+fig, ax = plt.subplots(figsize=(10, 10))  # Create a figure and axis
+Intersect_Buildings.plot(ax=ax, color='red', alpha=0.7)  # Plot the buildings
+Berlin_landcover.plot(ax=ax, color='green', alpha=0.5)  # Plot the roads
+# Set plot title
+plt.title('union')
+# Show the plot
+plt.show()
+
+count_maxspeed_roads = maxspeed_roads['maxspeed'].value_counts()
+print(count_maxspeed_roads)
+landcover_difference = Berlin_landcover.overlay(spatial_joined_gdf, how='difference')
+ax = landcover_difference.plot(alpha=0.5, edgecolor='black', column='fclass')
+building_difference = Berlin_landcover.overlay(Berlin_Building, how='difference')
+ax = building_difference .plot(alpha=0.5, edgecolor='black', column='type')
+
+Berlin_building_house=Berlin_Building.loc[Berlin_Building ['type'] == 'house', 'geometry'].squeeze()
+fig, ax = plt.subplots(figsize=(10, 10))
+Berlin_building_house.plot(ax=ax, color='blue', alpha=0.5)
+# Adding title
+plt.title('Berlin_building_house')
+# Show the plot
+plt.show()
+
+
+Berlin_landcover_residential_gdf = gpd.GeoDataFrame(Berlin_landcover_residential)
+
+# Perform the spatial join
+spatial_joined_gdf = gpd.sjoin(Berlin_landcover, Berlin_Building, op='intersects')
+
+landcover_difference = Berlin_landcover.overlay(spatial_joined_gdf, how='difference')
+ax = landcover_difference.plot(alpha=0.5, edgecolor='black', column='fclass')
+# Adding title
+plt.title('Berlin_building_house')
+# Show the plot
+plt.show()
+
+building_difference = Berlin_landcover.overlay(Berlin_Building, how='difference')
+ax = building_difference .plot(alpha=0.5, edgecolor='black', column='type')
+
+# Count occurrences of values in the 'fclass' column
+count_landcover_difference = landcover_difference['fclass'].value_counts()
+print(count_landcover_difference)
