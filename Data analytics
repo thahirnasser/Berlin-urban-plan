@@ -1,0 +1,350 @@
+import numpy as np
+import pandas as pd
+import seaborn as sbn
+import mapclassify
+import fiona
+        
+        
+shapefile_path = r'C:\Users\Thahir Nasser\Downloads\osm\Landuse\gis_osm_landuse_a_free_1.shp'
+
+# Open the shapefile
+with fiona.open(shapefile_path) as src:
+    for feature in src:
+        # Extract the geometry
+        geom_landcover = shape(feature['geometry'])
+
+        # Print the geometry
+        print(geom_landcover)
+          
+        
+  shapefile_path = r'C:\Users\Thahir Nasser\Downloads\osm\WATER_BODIES\gis_osm_water_a_free_1.shp'
+        
+        
+        # Open the shapefile
+        with fiona.open(shapefile_path) as src:
+            for feature in src:
+                # Extract the geometry
+                geom_landcover = shape(feature['geometry'])
+
+                # Print the geometry
+                print(geom_landcover)
+         
+        
+Berlin_landcover= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\Landuse\gis_osm_landuse_a_free_1.shp')
+# Plot the buildings
+Berlin_landcover .plot()
+
+# Show the plot
+plt.show()
+
+
+Berlin_Building = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_building\gis_osm_buildings_a_free_1.shp')
+# Plot the buildings
+Berlin_Building .plot()
+
+# Show the plot
+plt.show()
+
+Berlin_roads = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\berlin_road\gis_osm_roads_free_1.shp')
+Berlin_roads.plot()
+
+# Show the plot
+plt.show()
+
+# Replace 'column_name' with the name of the column you want to analyze
+most_common_value = Berlin_roads['maxspeed'].mode()[0]
+
+print("The most repeated value in the column is:", most_common_value)
+
+
+# Replace 'column_name' with the name of the column you want to analyze
+most_common_value_speed =Berlin_roads['maxspeed'].mode()[0]
+
+print("The most repeated value in the column is:", most_common_value)
+
+# Replace 'column_name' with the name of the column you want to analyze
+value_counts = Berlin_roads['fclass'].value_counts()
+
+# Find the least repeated value
+least_repeated_value = value_counts.idxmin()
+
+print("The least repeated value in the column is:", least_repeated_value)
+
+value_counts = Berlin_roads.value_counts('maxspeed')
+
+print(value_counts)
+
+value_unique = Berlin_roads['maxspeed'].unique()
+
+print(value_unique)
+
+
+# Convert the GeoDataFrame to a DataFrame
+df = Berlin_roads
+
+# Get the unique values for all columns
+value_unique = df.apply(pd.Series.unique)
+
+print(value_unique)
+
+
+# Assuming 'Berlin_roads' is your GeoDataFrame
+description = Berlin_roads.describe()
+
+print(description)
+
+
+Berlin_roads['fclass'].nunique()
+
+
+# Assuming 'Berlin_roads' is your GeoDataFrame
+# Extract the columns of interest
+data1 = Berlin_roads[['fclass', 'maxspeed']]
+
+# Drop rows with missing values
+data = data1.dropna()
+
+# Get the first 5 unique values of 'fclass'
+first_5_fclass = data['fclass'].unique()[:5]
+
+# Filter the data for the first 5 unique values of 'fclass'
+first_5_data = data[data['fclass'].isin(first_5_fclass)]
+
+# Plot the first 5 'fclass' values
+sns.lineplot(data=first_5_data, x='fclass', y='maxspeed')
+plt.title('Line plot of maxspeed for first 5 fclass')
+plt.xlabel('fclass')
+plt.ylabel('maxspeed')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+
+# Assuming 'Berlin_roads' is your GeoDataFrame
+# Extract the columns of interest
+data2 = Berlin_roads[['fclass', 'maxspeed']]
+
+# Drop rows with missing values
+data = data2.dropna()
+
+# Get the first 5 unique values of 'fclass'
+first_5_fclass = data['fclass'].unique()[:5]
+
+# Filter the data for the first 5 unique values of 'fclass'
+first_5_data = data[data['fclass'].isin(first_5_fclass)]
+
+# Plot the first 5 'fclass' values
+sns.lineplot(data=first_5_data, x='fclass', y='maxspeed')
+plt.title('Line plot of maxspeed for first 5 fclass')
+plt.xlabel('fclass')
+plt.ylabel('maxspeed')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+
+# Assuming 'Berlin_roads' is your GeoDataFrame
+# Extract the columns of interest
+data3 = Berlin_roads[['fclass', 'maxspeed']]
+
+# Drop rows with missing values
+data = data3.dropna()
+
+# Get the first 5 unique values of 'fclass'
+first_5_fclass = data['fclass'].unique()[:5]
+
+# Filter the data for the first 5 unique values of 'fclass'
+first_5_data = data[data['fclass'].isin(first_5_fclass)]
+
+# Plot the first 5 'fclass' values
+sns.lineplot(data=first_5_data, x='fclass', y='maxspeed')
+plt.title('Line plot of maxspeed for first 5 fclass')
+plt.xlabel('fclass')
+plt.ylabel('maxspeed')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+remaining_data = data[~data['fclass'].isin(first_5_fclass)]
+
+# Plot the remaining 'fclass' values
+sns.lineplot(data=remaining_data, x='fclass', y='maxspeed')
+plt.title('Line plot of maxspeed for remaining fclass')
+plt.xlabel('fclass')
+plt.ylabel('maxspeed')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+
+# Assuming 'Berlin_roads' is your GeoDataFrame
+# Extract the columns of interest
+data = Berlin_roads[['fclass', 'maxspeed']]
+
+# Drop rows with missing values
+data = data.dropna()
+
+# Get the unique values of 'fclass'
+unique_fclass = data['fclass'].unique()
+
+# Divide unique values into groups of 5
+grouped_fclass = [unique_fclass[i:i+5] for i in range(0, len(unique_fclass), 5)]
+
+# Plot each group of 5 unique values
+for i, group in enumerate(grouped_fclass):
+    # Filter the data for the current group
+    group_data = data[data['fclass'].isin(group)]
+    
+    # Plot the current group
+    sns.lineplot(data=group_data, x='fclass', y='maxspeed')
+    plt.title(f'Line plot of maxspeed for fclass group {i+1}')
+    plt.xlabel('fclass')
+    plt.ylabel('maxspeed')
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    plt.tight_layout()
+    plt.show()
+
+Berlin_landcover= gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\Landuse\gis_osm_landuse_a_free_1.shp')
+# Plot the buildings
+Berlin_landcover .plot()
+
+# Show the plot
+plt.show()
+
+
+
+
+Berlin_Building = gpd.read_file(r'C:\Users\Thahir Nasser\Downloads\osm\Berlin_building\gis_osm_buildings_a_free_1.shp')
+# Plot the buildings
+Berlin_Building .plot()
+
+# Show the plot
+plt.show()
+
+
+# Plot the first 5 'fclass' values
+sns.lineplot(data=first_5_data, x='fclass', y='maxspeed')
+plt.title('Line plot of maxspeed for first 5 fclass')
+plt.xlabel('fclass')
+plt.ylabel('maxspeed')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+# Plot a bar plot of 'fclass' counts
+sns.barplot(data=Berlin_landcover, x='fclass')
+plt.title('Count of occurrences of each fclass')
+plt.xlabel('fclass')
+plt.ylabel('Count')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+
+# Calculate the frequency of occurrences of each unique value in the 'fclass' column
+fclass_counts = Berlin_landcover['fclass'].value_counts()
+
+# Assign ranks based on the frequency counts
+fclass_ranks = fclass_counts.rank(ascending=False, method='min')
+
+# Create a new DataFrame to store the ranks
+rank_df = pd.DataFrame({'fclass': fclass_counts.index, 'frequency_rank': fclass_ranks})
+
+# Merge the rank DataFrame with the original GeoDataFrame on the 'fclass' column
+Berlin_landcover_ranked = pd.merge(Berlin_landcover, rank_df, on='fclass', how='left')
+
+# Display the updated GeoDataFrame with the new column 'frequency_rank'
+print(Berlin_landcover_ranked)
+
+
+# Calculate the frequency of occurrences of each unique value in the 'fclass' column
+fclass_counts = Berlin_landcover['fclass'].value_counts()
+
+# Assign ranks based on the frequency counts
+fclass_ranks = fclass_counts.rank(ascending=False, method='min')
+
+# Create a DataFrame with 'fclass' and 'frequency_rank' columns
+fclass_rank_df = pd.DataFrame({'fclass': fclass_counts.index, 'frequency_rank': fclass_ranks})
+
+# Display the DataFrame with 'fclass' and 'frequency_rank'
+print(fclass_rank_df)
+
+
+# Plot a bar diagram with Seaborn
+sns.barplot(data=fclass_rank_df, x='fclass', y='frequency_rank')
+plt.title('Frequency Rank of fclass')
+plt.xlabel('fclass')
+plt.ylabel('Frequency Rank')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+
+
+# Split the DataFrame into two parts: first 10 'fclass' values and the rest
+first_10_fclass = fclass_rank_df.head(10)
+rest_fclass = fclass_rank_df.iloc[10:]
+
+# Plot the first 10 'fclass' values
+plt.figure(figsize=(10, 5))
+sns.barplot(data=first_10_fclass, x='fclass', y='frequency_rank')
+plt.title('Frequency Rank of First 10 fclass')
+plt.xlabel('fclass')
+plt.ylabel('Frequency Rank')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+# Plot the next 10 'fclass' values
+plt.figure(figsize=(10, 5))
+sns.barplot(data=rest_fclass, x='fclass', y='frequency_rank')
+plt.title('Frequency Rank of Next 10 fclass')
+plt.xlabel('fclass')
+plt.ylabel('Frequency Rank')
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+plt.tight_layout()
+plt.show()
+
+
+
+
+# Perform a merge operation
+merged = gpd.merge( Berlin_landcover, Berlin_Building, left_on='fclass', right_on='type', suffixes=('_gdf1', '_gdf2'))
+
+# Select only the columns of interest
+result = merged[['fclass', 'type']]
+
+# Sort the result by 'fclass'
+result_sorted = result.sort_values(by='fclass')
+
+# Display the sorted result
+print(result_sorted)
+
+
+
+
+new_df = pd.DataFrame({'fclass': Berlin_landcover['fclass'], 'type': Berlin_Building['type']})
+
+# Sort the values in the new DataFrame
+sorted_df = new_df.sort_values(by='fclass')
+
+# Display the sorted DataFrame
+print(sorted_df)
+
+
+spatial_join = gpd.sjoin(Berlin_landcover, Berlin_Building, op='within')
+
+# Count the number of occurrences
+value_count = spatial_join['index_right'].value_counts()
+
+# Display the value counts
+print(value_count)
+
+# Assuming value_count is your pandas Series containing the value counts
+# Plot the value counts in a barplot using Seaborn
+plt.figure(figsize=(60, 60))
+sns.barplot(x=value_count.index, y=value_count.values)
+plt.xlabel('Index')
+plt.ylabel('Count')
+plt.title('Count of occurrences for each index from Berlin_Building')
+plt.show()
